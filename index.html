@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VaultAudit — Zero-Knowledge Local AI Invoice & Expense Sorter</title>
+  <meta name="description" content="Local, private receipt & invoice parser running on open-weight Llama 3.2. Client financial data never leaves your computer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="#" class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title">VaultAudit AI</span>
+          <span class="brand-badge" style="margin-left: 6px;">100% Offline</span>
+        </div>
+      </a>
+
+      <div class="header-meta">
+        <div class="glass-pill" id="model-pill">
+          <span class="status-dot" id="model-dot"></span>
+          <span id="model-name">Ollama: llama3.2:3b</span>
+        </div>
+        <button class="btn-secondary" id="btn-export-csv" title="Export parsed expenses as CSV for accounting">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h1>Private Freelance Invoice & Expense Sorter</h1>
+        <p>Built for freelancers, contractors, and agencies. Process confidential client invoices, receipts, and bank statements with open-weight <strong>Llama 3.2</strong>. Zero cloud telemetry. Zero subscriptions. Complete data sovereignty.</p>
+        
+        <div class="hero-highlights">
+          <span class="glass-pill">🔒 Zero-Knowledge Privacy</span>
+          <span class="glass-pill">⚡ Open-Weight Llama 3.2 (3B)</span>
+          <span class="glass-pill">📊 Auto Deductibility Tagging</span>
+          <span class="glass-pill">💰 $0 API Cloud Costs</span>
+        </div>
+      </div>
+
+      <div class="hero-stat-box">
+        <span class="hero-stat-val" id="total-saved-stat">$0.00</span>
+        <span class="hero-stat-label">Total Expenses Tracked</span>
+      </div>
+    </section>
+
+    <!-- Two-Column Interactive Workspace -->
+    <div class="dashboard-grid">
+      <!-- Left Panel: Input & Extraction -->
+      <section class="glass-panel" aria-labelledby="input-heading">
+        <div class="panel-header">
+          <h2 class="panel-title" id="input-heading">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Document Intake & Scanner
+          </h2>
+          <span class="glass-pill" style="font-size: 0.75rem;">Local Inference</span>
+        </div>
+
+        <div class="panel-body">
+          <!-- Dropzone -->
+          <div class="dropzone" id="dropzone">
+            <div class="dropzone-icon">📥</div>
+            <h3>Drop Invoice, Receipt, or Text File</h3>
+            <p>Upload .txt, .pdf raw text, or choose an interactive sample receipt below</p>
+            <input type="file" id="file-input" style="display: none;" accept=".txt,.json,.csv,.log">
+            <button type="button" class="btn-secondary" id="btn-browse">Browse Local File</button>
+          </div>
+
+          <!-- Sample Pre-loaded Invoices -->
+          <div class="samples-bar">
+            <span class="samples-label">Or load sample real-world freelance document:</span>
+            <div class="sample-buttons">
+              <button class="sample-chip" data-sample="aws">Cloud Hosting Bill</button>
+              <button class="sample-chip" data-sample="uber">Rideshare Travel Receipt</button>
+              <button class="sample-chip" data-sample="contractor">Subcontractor Dev Invoice</button>
+              <button class="sample-chip" data-sample="hardware">MacBook Office Equipment</button>
+            </div>
+          </div>
+
+          <!-- Raw Textarea Editor -->
+          <div class="textarea-wrapper">
+            <label for="raw-input" style="font-size: 0.8rem; color: var(--text-dim); font-weight: 600;">RAW DOCUMENT TEXT / OCR EXTRACT:</label>
+            <textarea id="raw-input" class="raw-textarea" placeholder="Paste invoice text, receipt OCR snippet, or email billing notification here..."></textarea>
+          </div>
+
+          <!-- Run Audit Button -->
+          <button class="btn-primary" id="btn-audit">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <span id="audit-btn-text">Extract & Audit with Local Llama 3.2</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Panel: Structured AI Extraction Audit -->
+      <section class="glass-panel" aria-labelledby="audit-heading">
+        <div class="panel-header">
+          <h2 class="panel-title" id="audit-heading">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-emerald)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            Zero-Knowledge AI Audit Result
+          </h2>
+          <span class="glass-pill" id="latency-badge" style="display: none;">Latency: 0ms</span>
+        </div>
+
+        <div class="panel-body" id="audit-result-container">
+          <!-- Loading animation state -->
+          <div class="process-state" id="loading-state">
+            <div class="spinner"></div>
+            <div>
+              <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Running Local Open-Weight Inference...</h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Tokenizing locally with Llama 3.2:3b via Ollama. No packets leave your device.</p>
+            </div>
+          </div>
+
+          <!-- Empty state initial view -->
+          <div class="empty-placeholder" id="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+            <h3>No Document Audited Yet</h3>
+            <p>Select a sample or paste receipt text on the left to extract structured tax categories, merchant data, and line items.</p>
+          </div>
+
+          <!-- Populated Data View -->
+          <div class="result-card" id="populated-state" style="display: none;">
+            <div class="receipt-meta-grid">
+              <div class="meta-field">
+                <label>Merchant / Vendor</label>
+                <div class="val" id="res-merchant">—</div>
+              </div>
+              <div class="meta-field">
+                <label>Total Amount & Currency</label>
+                <div class="val amount" id="res-amount">$0.00</div>
+              </div>
+              <div class="meta-field">
+                <label>Date & Invoice #</label>
+                <div class="val" id="res-date">—</div>
+              </div>
+              <div class="meta-field">
+                <label>Tax Category</label>
+                <div class="val" id="res-category">—</div>
+              </div>
+            </div>
+
+            <!-- Tax status & payment -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <span id="res-tax-badge" class="badge-tag badge-tax-yes">Tax Deductible</span>
+              <span class="glass-pill" id="res-payment-method">Payment: Credit Card</span>
+              <span class="glass-pill" id="res-confidence">Confidence: 98%</span>
+            </div>
+
+            <!-- Audit Explanation -->
+            <div class="audit-explanation" id="res-audit-notes">
+              AI Auditor Note: Verified operational business expense.
+            </div>
+
+            <!-- Line Items Table -->
+            <div>
+              <h4 style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;">Extracted Line Items</h4>
+              <div class="items-table-wrapper">
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>Description</th>
+                      <th>Qty</th>
+                      <th>Unit Price</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody id="res-items-body">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Add to Ledger Action -->
+            <button class="btn-secondary" id="btn-add-ledger" style="margin-top: 0.5rem; justify-content: center; padding: 0.8rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Commit to Local Expense Ledger
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Bottom Section: Permanent Freelance Expense Ledger -->
+    <section class="glass-panel ledger-section" aria-labelledby="ledger-heading">
+      <div class="panel-header">
+        <h2 class="panel-title" id="ledger-heading">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Freelance Tax & Expense Ledger (Local Storage)
+        </h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" id="btn-clear-ledger" style="font-size: 0.78rem;">Clear All</button>
+        </div>
+      </div>
+
+      <div class="panel-body ledger-table-container">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Merchant</th>
+              <th>Category</th>
+              <th>Tax Deductible</th>
+              <th>Payment</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="ledger-body">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Interactive Toast Notification -->
+  <div class="toast-notice" id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+    <span id="toast-text">Message</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
